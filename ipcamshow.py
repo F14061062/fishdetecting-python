@@ -4,12 +4,12 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image, ImageTk
 import cv2
-from numba import jit
+
 
 
 class cnn_yolo_detect():
     def __init__(self):
-        self.weights_path =  "yolov4-tiny-obj_final.weights"
+        self.weights_path =  "yolov41007.weights"
         self.cfg_path = "yolov4-tiny-obj.cfg"
         self.classes = ["tuna-head","tuna-tail","marlin-head","marlin-tail","shark-head","shark-tail"]
         self.net = cv2.dnn.readNet(self.weights_path,self.cfg_path)
@@ -20,7 +20,7 @@ class cnn_yolo_detect():
     def integrate(self,img):
         outs , height , width =self.start_detect(img)
         outs = np.array(outs)
-        boxes,confidences,class_ids = self.detect_output_arrange(outs,height,width)
+        #boxes,confidences,class_ids = self.detect_output_arrange(outs,height,width)
         #img = self.output_arrange_convert_frame(boxes,confidences,class_ids,img)
         return img
 
