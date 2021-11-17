@@ -10,6 +10,7 @@ import math
 import pyodbc
 from datetime import datetime
 from numpy.lib.function_base import delete, insert
+import random
 
 class cnn_yolo_detect():
     def __init__(self):
@@ -181,11 +182,23 @@ class connect_to_database():
                       'Uid=root;'
                       'Pwd=123456;'
                       'Trusted_Connection=yes;')
-
+        
+        self.conn2 = pyodbc.connect('Driver={SQL Server};'
+                      'Server=140.116.175.61;'
+                      'Database=CAEYFC;'
+                      'Uid=sa;'
+                      'Pwd=mdms0920J;')
     def write_sql(self,lines):
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM fishdata2')
         cursor.execute("INSERT INTO fishdata2 VALUES('"+lines[0]+" "+lines[1]+"','"+lines[2]+"','"+lines[3]+"','"+lines[4]+"','"+lines[7]+"','"+lines[5]+"','"+lines[6]+"')")
+        cursor2 = self.conn2.cursor()
+        cursor2.execute('SELECT * FROM fishcatch')
+        st= "INSERT INTO dbo.fishcatch VALUES('"+str(54015)+"','"+lines[3]+"' , '"+'黃金測試號'+"' , '"+lines[3]+"' ,"+str(187)+","+lines[4]+",'"+"黃大胖"+"', '"+lines[5]+","+lines[6]+"','"+lines[0]+" "+lines[1]+"','"+str(911)+"','06-2757575#61207',0,"+lines[5]+","+lines[6]+",'8');"
+        print(st)
+
+        cursor2.execute("INSERT INTO dbo.fishcatch VALUES('"+str(54015)+"','"+lines[3]+"' , '"+'黃金測試號'+"' , '"+lines[3]+"' ,"+(lines[4])+","+lines[4]+",'"+"黃大胖"+"', '"+lines[5]+","+lines[6]+"','"+lines[0]+" "+lines[1]+"','"+str(911)+"','06-2757575#61207',0,"+lines[5]+","+lines[6]+",'8');")
+        self.conn2.commit() #(ID, shipID, shipname, fishspecies, weight, length, captain, GPS, date, company, phone, RFIDwrite, lat, lng, TagID)
         self.conn.commit()
 
 
@@ -248,7 +261,7 @@ class mainapp(tk.Tk):
         self.label.imgtk = img
         #print("sssssssss",time.time()-self.set_time)
         if (len(infor)!=0):
-            if (time.time()-self.set_time) >300:
+            if (time.time()-self.set_time) >30:
                 self.set_time = time.time()
                 self.Sent_detect_information1(signal,infor)
 
@@ -310,7 +323,7 @@ class Application(tk.Frame):
         self.save_his()
         his.clear()
         lines=self.read_file_his()
-        print(lines)
+        #print(lines)
         for i in lines:
             self.connect_to_database.write_sql(i)
 
@@ -398,7 +411,7 @@ class ipcam_detect2():
         #img1= cv2.Canny(img,150,210)
         img1=img1-self.temp
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        print(np.sum(img1)/255)
+        #print(np.sum(img1)/255)
         img = np.hstack((img,img1))
         im = Image.fromarray(img)
         imgtk = ImageTk.PhotoImage(image=im)
@@ -528,19 +541,32 @@ class ipcam_detect2():
                     fframe = test1(head_position[i],tail_position[j],degree,imgg)
                     ffframe = image_transpose(fframe)
                     fframe =cv2.Canny(ffframe,180,200)
-                    fcframe = np.rot90(fframe)
-                    fcframe=fcframe[int(fcframe.shape[0]/4):int(fcframe.shape[0]*3/4)][:]
-                    fcframe = np.rot90(fcframe)
-                    sum =np.sum(fframe/255, axis=0)
-                    var= np.var(sum/frame.shape[0])-7
-                    sum= np.sum(fcframe/255)
-                    temp.append(ffframe)
-                    if fframe.shape[1] >170 and fframe.shape[1] <250:                    
-                        var_array[tt]=1*var-10*sum
-                        sum_array[tt]=sum-10*var
+                    
+                    try:
+                        fcframe = np.rot90(fframe)
+                        fcframe=fcframe[int(fcframe.shape[0]/4):int(fcframe.shape[0]*3/4)][:]
+                        fcframe = np.rot90(fcframe)
+                        sum= np.sum(fcframe/255)
+                        var= np.var(sum/frame.shape[0])-7
+                        temp.append(ffframe)
+                        if fframe.shape[1] >170 and fframe.shape[1] <250:                    
+                            var_array[tt]=1*var-10*sum
+                            sum_array[tt]=sum-10*var
+                            boxx.append(ffframe)
+                            tt+=1 
+                    except:
+                        print(fframe)
+                        sum=0
+
+                    #var= np.var(sum/frame.shape[0])-7
+                    #sum= np.sum(fcframe/255)
+                    #temp.append(ffframe)
+                    #if fframe.shape[1] >170 and fframe.shape[1] <250:                    
+                    #    var_array[tt]=1*var-10*sum
+                    #    sum_array[tt]=sum-10*var
                     #ffframe = np.rot90(fframe)
-                        boxx.append(ffframe)
-                        tt+=1 
+                    #    boxx.append(ffframe)
+                    #    tt+=1 
                 if(len(boxx)!=0):
                     #result = time.localtime(time.time())
                     #now_timr=str(result.tm_year)+"-"+str(result.tm_mon)+"-"+str(result.tm_mday)+" "+str(result.tm_hour)+":"+str(result.tm_min)+":"+str(result.tm_sec)

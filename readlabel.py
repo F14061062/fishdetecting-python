@@ -3,6 +3,7 @@ from tkinter.constants import BOTH
 import tkinter as tk
 from tkinter import Label, ttk
 import socket
+
 import threading
 import time
 import tkinter.messagebox 
@@ -11,14 +12,18 @@ from tkinter import simpledialog
 class udp_read():
     def __init__(self):
         self.UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.localIP = simpledialog.askstring(title="請先輸入",
+                  prompt="IP-adress", initialvalue="192.168.0.188")
         self.UDP_server_create()
         self.temp =0
+
+        
         
     def UDP_server_create(self):
-        localIP     = "192.168.0.188"
+        #localIP     = "192.168.0.188"
         localPort   = 20001
         bufferSize  = 1024
-        self.UDPServerSocket.bind((localIP, localPort))
+        self.UDPServerSocket.bind((self.localIP, localPort))
     def messange_convert(self,message):
         convert=""
         for count,c in enumerate(message):
