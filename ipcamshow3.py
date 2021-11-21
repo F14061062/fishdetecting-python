@@ -275,7 +275,7 @@ class mainapp(tk.Tk):
         self.label.imgtk = img
         #print("sssssssss",time.time()-self.set_time)
         if (len(infor)!=0):
-            if (time.time()-self.set_time) >30:
+            if (time.time()-self.set_time) >300:#times
                 self.set_time = time.time()
                 self.Sent_detect_information1(signal,infor)
 
@@ -303,12 +303,12 @@ class mainapp(tk.Tk):
         for i in infor:
             lines = self.get_rf_id()
             if len(lines) >0:
-                signal.insert('', 'end', text="1", values=(i[0], i[1], i[2], i[3]+" cm",i[4],i[5],lines[0]))
+                signal.insert('', 'end', text="1", values=(i[0], i[1], i[2], i[3]+" cm",float(i[3])*1.6,i[4],i[5],lines[0]))
                 temp=[i[0], i[1], i[2], i[3],i[4],i[5],lines[0]]
                 his.append(temp)
                 self.write_rf_id(lines)
             else:
-                signal.insert('', 'end', text="1", values=(i[0], i[1], i[2], i[3]+" cm",i[4],i[5],"exceed"))
+                signal.insert('', 'end', text="1", values=(i[0], i[1], i[2], i[3]+" cm",float(i[3])*1.6,i[4],i[5],"exceed"))
                 temp=[i[0], i[1], i[2], i[3],i[4],i[5],"exceed"]
                 his.append(temp)
 
@@ -340,6 +340,8 @@ class Application(tk.Frame):
         #print(lines)
         for i in lines:
             self.connect_to_database.write_sql(i)
+        a_file = open("test.txt","w")
+        a_file.close()
         os._exit(0)
 
     def save_his(self):
@@ -387,7 +389,7 @@ class maintable():
         style = ttk.Style()
         style.theme_use('clam')
         #self.tree =ttk.Treeview(app.frame2, column=("Date_Time", "ID", "Fish_Type","Fish_Length","Latitude","Longitude"), show='headings', height=20)
-        self.tree =ttk.Treeview(app.frame2, column=("Date_Time", "ID", "Fish_Type","Fish_Length","Latitude","Longitude","RF-ID"), show='headings', height=20)
+        self.tree =ttk.Treeview(app.frame2, column=("Date_Time", "ID", "Fish_Type","Fish_Length","Fish_Weight","Latitude","Longitude","RFID"), show='headings', height=20)
         self.createtable()
 
     def createtable(self):
@@ -400,11 +402,15 @@ class maintable():
         self.tree.column("# 4", anchor=tk.CENTER,width=100)
         self.tree.heading("# 4", text="Fish_Length")
         self.tree.column("# 5", anchor=tk.CENTER,width=100)
-        self.tree.heading("# 5", text="Latitude")
+        self.tree.heading("# 5", text="Fish_Weight")
+
+
         self.tree.column("# 6", anchor=tk.CENTER,width=100)
-        self.tree.heading("# 6", text="Longitude")
-        self.tree.column("# 7", anchor=tk.CENTER,width=200)
-        self.tree.heading("# 7", text="RF-ID")
+        self.tree.heading("# 6", text="Latitude")
+        self.tree.column("# 7", anchor=tk.CENTER,width=100)
+        self.tree.heading("# 7", text="Longitude")
+        self.tree.column("# 8", anchor=tk.CENTER,width=200)
+        self.tree.heading("# 8", text="RF-ID")
         self.tree.pack()
 
 
@@ -596,8 +602,8 @@ class ipcam_detect2():
                     info_fish[1]="lab611"
                     info_fish[2]=classes[head_name[i]]
                     info_fish[3]=str(imagen.shape[1]/5*4)
-                    info_fish[4]="22.4576"
-                    info_fish[5]="123.112"
+                    info_fish[4]="25.056712"
+                    info_fish[5]="121.563453"
                     information.append(info_fish) 
             return information
         ret, imgg = self.cap.read()
@@ -626,7 +632,7 @@ class head_tail():
                 self.head_position.append(center[count])
 his=[]
 roost = mainapp()
-roost.geometry('1000x1000')
+roost.geometry('1200x1000')
 roost.resizable(width=False, height=False)
 app=Application()
 
